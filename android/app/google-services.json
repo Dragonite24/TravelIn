@@ -1,0 +1,40 @@
+{
+    "project_info": {
+      "project_number": "245564869609",
+      "firebase_url": "https://sandbox-lrnncd.firebaseio.com",
+      "project_id": "sandbox-lrnncd",
+      "storage_bucket": "sandbox-lrnncd.appspot.com"
+    },
+    "client": [
+      {
+        "client_info": {
+          "mobilesdk_app_id": "1:245564869609:android:c9869b678c829d35ed1978",
+          "android_client_info": {
+            "package_name": "com.travelin.travel_in"
+          }
+        },
+        "oauth_client": [
+          {
+            "client_id": "245564869609-0jdlomvldtno4g12450t7jhonkov2g2l.apps.googleusercontent.com",
+            "client_type": 3
+          }
+        ],
+        "api_key": [
+          {
+            "current_key": "AIzaSyB3OtzmiwaQyvuGtv4EAT6F6yC3WlFS-oM"
+          }
+        ],
+        "services": {
+          "appinvite_service": {
+            "other_platform_oauth_client": [
+              {
+                "client_id": "245564869609-0jdlomvldtno4g12450t7jhonkov2g2l.apps.googleusercontent.com",
+                "client_type": 3
+              }
+            ]
+          }
+        }
+      }
+    ],
+    "configuration_version": "1"
+  }
