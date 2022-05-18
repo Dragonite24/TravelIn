@@ -1,4 +1,5 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.travelin.travel_in">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" package="com.travelin.travel_in">
   <uses-permission android:name="android.permission.CAMERA" />
   <uses-permission android:name="android.permission.RECORD_AUDIO" />
   <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
@@ -8,10 +9,12 @@
   <uses-permission android:name="android.permission.INTERNET"/>
   <uses-feature android:name="android.hardware.camera" />
   <uses-feature android:name="android.hardware.camera.autofocus" />
-  <uses-feature android:name="android.hardware.camera.ar" android:required="true" />
-  
-  <application android:label="Travel In" android:icon="@mipmap/ic_launcher">
+  <uses-feature android:name="android.hardware.camera.ar" />
+  <uses-sdk android:minSdkVersion="24"/>
+
+  <application android:label="Travel In" android:icon="@mipmap/ic_launcher" >
     <uses-library android:name="org.apache.http.legacy" android:required="false"/>
+
     <activity android:name=".MainActivity" android:launchMode="singleTop" android:theme="@style/LaunchTheme" android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode" android:hardwareAccelerated="true" android:windowSoftInputMode="adjustResize">
       <meta-data android:name="io.flutter.embedding.android.NormalTheme" android:resource="@style/NormalTheme" />
       <meta-data android:name="io.flutter.embedding.android.SplashScreenDrawable" android:resource="@drawable/launch_background" />
@@ -21,7 +24,8 @@
       </intent-filter>
     </activity>
     <meta-data android:name="flutterEmbedding" android:value="2" />
-    <meta-data android:name="com.google.ar.core" android:value="optional" />
+    <meta-data android:name="com.google.ar.core" android:value="required" tools:replace="android:value" />
+<!--    <meta-data android:name="com.google.ar.core" android:value="optional" />-->
     <meta-data android:name="com.google.android.geo.API_KEY" android:value="AIzaSyBknG3DMbic2PfR_Bh9glADNl6V2mz_UoM" />
   </application>
 </manifest>
