@@ -21,15 +21,20 @@ class Attraction {
   /// Часто задаваемые и интересные вопросы
   Map<String, String> questions = {};
 
-  /// Координаты: широтаБ долгота.
+  /// Координаты: широта, долгота.
   double latitude, longitude;
+
+  /// Расстояние до местоположения
+  double distance;
 
   Attraction(this.name, this.id,
       {this.questions,
       this.latitude,
       this.longitude,
       this.imageUrl,
+      this.distance,
       double rating = double.nan}) {
+    this.distance = 0;
     this.rating = rating;
   }
 }

@@ -17,7 +17,6 @@ class MyTextField extends StatelessWidget {
           width: double.infinity,
           child: TextField(
             controller: controller,
-            style: const TextStyle(color: CColors.dark_grey),
             decoration: InputDecoration(
               border: InputBorder.none,
               focusColor: CColors.light_grey,

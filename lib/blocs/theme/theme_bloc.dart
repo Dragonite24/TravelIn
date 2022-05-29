@@ -1,6 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:travel_in/bloc/bloc_events/theme_event.dart';
-import 'package:travel_in/bloc/bloc_states/theme_state.dart';
+import 'package:travel_in/blocs/theme/theme_event.dart';
+import 'package:travel_in/blocs/theme/theme_state.dart';
 import 'package:travel_in/mocks/theme.dart';
 import 'package:travel_in/resourse.dart';
 

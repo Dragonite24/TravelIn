@@ -1,7 +1,7 @@
 import 'package:travel_in/models/attractions_model.dart';
 
 class Mocks {
-  List<Attraction> getAttractions() {
+  Future<List<Attraction>> getAttractions() async {
     final attr = <Attraction>[
       Attraction(
         "Успенский собор",

@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:travel_in/constants.dart';
-import 'package:travel_in/models/sberservice.dart';
-import 'package:travel_in/screen/embed.dart';
 import 'package:travel_in/screen/profile/settings.dart';
 
 class ProfilePage extends StatefulWidget {

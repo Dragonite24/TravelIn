@@ -5,7 +5,7 @@ class ThemeChangeProvider {
   Future<AppTheme> getTheme() async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
     AppTheme theme = AppTheme.BlueLight;
-    print(preferences);
+
     if (preferences.getString("theme") == null || preferences.getString("theme") == "") {
       theme = AppTheme.BlueLight;
     } else {

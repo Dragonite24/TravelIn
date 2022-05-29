@@ -1,10 +1,9 @@
 import "package:flutter/material.dart";
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:travel_in/bloc/bloc_states/theme_state.dart';
-import 'package:travel_in/bloc/theme_bloc.dart';
-import 'package:travel_in/constants.dart';
+import 'package:travel_in/blocs/theme/theme_bloc.dart';
+import 'package:travel_in/blocs/theme/theme_event.dart';
+import 'package:travel_in/blocs/theme/theme_state.dart';
 
-import '../../bloc/bloc_events/theme_event.dart';
 
 class Settings extends StatelessWidget {
   const Settings({Key key}) : super(key: key);

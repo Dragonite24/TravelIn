@@ -28,7 +28,7 @@ apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
 apply plugin: 'com.google.ar.sceneform.plugin'
 apply plugin: 'com.google.gms.google-services'
 
-sceneform.asset('../sampledata/untitled.gltf', 'src/main/assets/untitled')  
+sceneform.asset('../sampledata/untitled.gltf', '../sampledata/untitled.sfa', )
 
 android {
     compileSdkVersion 31
@@ -77,6 +77,4 @@ dependencies {
     // Alternatively, use ArSceneView without the UX dependency.
 //    implementation 'com.google.ar.sceneform:core:1.8.0'
     implementation 'com.google.ar:core:1.31.0'
-
-
 }

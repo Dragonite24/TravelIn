@@ -17,6 +17,16 @@ class NavbarState extends State<Navbar> {
   final myKey = GlobalKey<NavbarState>();
   int _selectedItem = 0;
 
+  final _pageController = PageController();
+
+  final items = [
+    AttractionsPage(),
+    MapPage(),
+    // AttractionsPage(),
+    PreARPage(),
+    ProfilePage(),
+  ];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -47,15 +57,10 @@ class NavbarState extends State<Navbar> {
               navButton(Icons.settings, 'Профиль', 3),
             ],
           )),
-      body: IndexedStack(
-        children: [
-          AttractionsPage(),
-          MapPage(),
-          AttractionsPage(),
-          // PreARPage(),
-          ProfilePage(),
-        ],
-        index: _selectedItem,
+      body: PageView(
+        physics: const NeverScrollableScrollPhysics(),
+        controller: _pageController,
+        children: items,
       ),
     );
   }
@@ -66,6 +71,7 @@ class NavbarState extends State<Navbar> {
       height: 60,
       child: InkWell(
         onTap: () {
+          _pageController.jumpToPage(index);
           _selectedItem = index;
           setState(() {});
         },

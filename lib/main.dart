@@ -1,12 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:travel_in/bloc/bloc_events/theme_event.dart';
-import 'package:travel_in/bloc/theme_bloc.dart';
+import 'package:travel_in/blocs/attractions/attractions_bloc.dart';
+import 'package:travel_in/blocs/attractions/attractions_event.dart';
+import 'package:travel_in/blocs/auth/auth_bloc.dart';
+import 'package:travel_in/blocs/theme/theme_bloc.dart';
+import 'package:travel_in/blocs/theme/theme_event.dart';
+import 'package:travel_in/blocs/theme/theme_state.dart';
 import 'package:travel_in/mocks/theme.dart';
+import 'package:travel_in/repositories/api_repository.dart';
 import 'package:travel_in/screen/auth/auth.dart';
-import 'bloc/bloc_states/theme_state.dart';
 
-void main() => runApp(MyApp());
+void main() {
+  runApp(MyApp());
+}
+
+final AuthRepository authRepository = AuthRepository();
 
 class MyApp extends StatelessWidget {
   @override
@@ -14,17 +22,27 @@ class MyApp extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         BlocProvider(
+          create: (context) => AuthBloc(authRepository: authRepository),
+        ),
+        BlocProvider(
           create: (context) => ThemeChangeBloc()..add(GetThemeChangeEvent()),
+        ),
+        BlocProvider(
+          create: (context) =>
+              AttractionsBloc()..add(GetAttractionsChangeEvent()),
         )
       ],
       child: BlocBuilder<ThemeChangeBloc, ThemeChangeState>(
-        builder: (context, state) {
+        builder: (context1, themeState) {
           return MaterialApp(
             title: 'Travel In',
-            theme: (state is GetThemeState)
-                ? appThemeData[state.theme]
+            theme: (themeState is GetThemeState)
+                ? appThemeData[themeState.theme]
                 : appThemeData[AppTheme.BlueLight],
-            home: AuthPage(),
+            home: AuthPage(
+              authRepository: authRepository,
+              authBloc: AuthBloc(authRepository: authRepository),
+            ),
           );
         },
       ),
