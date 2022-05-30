@@ -14,6 +14,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<AuthCheck>(_onAuthCheck);
     on<LoginProcess>(_onAuthLoginProcess);
     on<GetDataWithToken>(_onGetData);
+    on<LoggedOut>(_onLogout);
     // on<AuthCheck>((event, emit) {});
   }
 
@@ -22,12 +23,11 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final AuthRepository authRepository;
 
   void _onAuthCheck(AuthEvent event, Emitter<AuthState> emit) async {
-    emit(AuthData(email: 'user.email', name: ''));
     if (event is AuthCheck) {
       emit(AuthLoading());
 
       final hasToken = await authRepository.hasToken();
-      if (hasToken != null) {
+      if (hasToken != 'null') {
         emit(AuthHasToken(token: hasToken));
       } else {
         emit(AuthFailed());
@@ -40,10 +40,26 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       final user = await authRepository.getData(event.token);
       emit(AuthData(email: user.email, name: user.name));
     }
+
     if (event is LoggedOut) {
       final String token = await authRepository.hasToken();
       try {
-        final Logout logout = await authRepository.userLogout();
+        final Logout logout = await authRepository.userLogout(token);
+        if (logout.message == "success") {
+          await authRepository.unsetLocalToken();
+          emit(AuthFailed());
+        }
+      } catch (e) {}
+    }
+
+  }
+
+  void _onLogout(AuthEvent event, Emitter<AuthState> emit) async {
+    if (event is LoggedOut) {
+      final String token = await authRepository.hasToken();
+      try {
+        final Logout logout = await authRepository.userLogout(token);
+        print(logout.message);
         if (logout.message == "success") {
           await authRepository.unsetLocalToken();
           emit(AuthFailed());
@@ -52,21 +68,21 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     }
   }
 
+
   void _onAuthLoginProcess(AuthEvent event, Emitter<AuthState> emit) async {
     if (event is LoginProcess) {
       emit(AuthLoading());
-      emit(LoginSuccess());
-      // try {
-      //   final login =
-      //   await authRepository.loginUser(event.email, event.password);
-      //   if (login.message != "failed") {
-      //     emit(LoginSuccess());
-      //     await authRepository.setLocalToken(login.data.token);
-      //     emit(AuthHasToken(token: login.data.token));
-      //   }
-      // } catch (e) {
-      //   emit(LoginFailed("Неудалось войти"));
-      // }
+      try {
+        final login =
+            await authRepository.loginUser(event.email, event.password);
+        if (login.message != "failed") {
+          emit(LoginSuccess());
+          await authRepository.setLocalToken(login.data.token);
+          emit(AuthHasToken(token: login.data.token));
+        }
+      } catch (e) {
+        emit(LoginFailed("Неудалось войти"));
+      }
     }
   }
 

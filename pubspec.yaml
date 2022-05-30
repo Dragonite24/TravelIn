@@ -20,6 +20,7 @@ dependencies:
   google_maps_flutter: ^2.0.3
   geolocator: ^8.1.1
   flutter_svg: ^1.0.2
+  dio: ^4.0.4
   flutter_bloc: ^7.3.3
   equatable: ^2.0.3
   shared_preferences: ^2.0.15

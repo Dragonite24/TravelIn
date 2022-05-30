@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:travel_in/blocs/auth/auth_bloc.dart';
 import 'package:travel_in/constants.dart';
 import 'package:travel_in/screen/map/map.dart';
 import 'package:travel_in/screen/guide/prear.dart';
@@ -7,25 +8,36 @@ import 'package:travel_in/screen/profile/profile.dart';
 import 'package:travel_in/screen/attractions/attractions.dart';
 
 class Navbar extends StatefulWidget {
-  const Navbar({Key key}) : super(key: key);
+  final AuthBloc authBloc;
+
+  const Navbar({Key key, this.authBloc}) : super(key: key);
 
   @override
   NavbarState createState() => NavbarState();
 }
 
 class NavbarState extends State<Navbar> {
+  AuthBloc authBloc;
+  List<Widget> items;
+
+  @override
+  void initState() {
+    authBloc = widget.authBloc;
+    items = [
+      AttractionsPage(),
+      MapPage(),
+      // AttractionsPage(),
+      PreARPage(),
+      ProfilePage(authBloc: authBloc),
+    ];
+    super.initState();
+  }
+
   final myKey = GlobalKey<NavbarState>();
   int _selectedItem = 0;
 
   final _pageController = PageController();
 
-  final items = [
-    AttractionsPage(),
-    MapPage(),
-    // AttractionsPage(),
-    PreARPage(),
-    ProfilePage(),
-  ];
 
   @override
   Widget build(BuildContext context) {

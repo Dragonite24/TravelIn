@@ -40,7 +40,6 @@ class Settings extends StatelessWidget {
                       groupValue: _groupValue,
                       title: Text("Светлая тема (зеленый)"),
                       onChanged: (newValue) {
-                        print(newValue);
                         BlocProvider.of<ThemeChangeBloc>(context)
                             .add(SetThemeChangeEvent('GreenLight'));
                         BlocProvider.of<ThemeChangeBloc>(context)

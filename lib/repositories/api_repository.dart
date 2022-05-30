@@ -1,38 +1,44 @@
 import 'dart:convert';
+import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:travel_in/models/data_model.dart';
 import 'package:http/http.dart' as http;
-import 'package:travel_in/models/http_server.dart';
 
 class AuthRepository {
+  var dio = Dio();
+  static const baseUrl = 'https://www.mockachino.com/192910f0-ae70-4e/';
+
   Future loginUser(String _email, String _password) async {
-    print('loginUser');
-    try {
-      final response = await Server().loginUser(_email, _password);
-      return LoginAuth.fromJson(response);
-    } catch (e) {
-      return e;
+    final data = {"login": _password, "password": _password};
+    final url = baseUrl + "loginUser";
+
+    Response response = await dio.post(
+      url,
+      data: data,
+    );
+    if (response.statusCode == 200) {
+      return LoginAuth.fromJson(response.data);
+    } else {
+      throw ('loginUser STATUS CODE: ' + response.statusCode.toString());
     }
   }
 
-  Future userLogout() async {
-    print('userLogout');
-    try {
-      var response = await Server().userLogout();
-      return Logout.fromJson(response);
-    } catch (e) {
-      return e;
+  Future userLogout(String token) async {
+    final url = baseUrl + "userLogout";
+    Response response = await dio.post(url);
+    if (response.statusCode == 200) {
+      return Logout.fromJson(response.data);
+    } else {
+      throw ('userLogout STATUS CODE: ' + response.statusCode.toString());
     }
   }
 
   Future getData(String token) async {
     print('getData');
-    String baseUrl = "http://127.0.0.1:8000/api/me";
-
     try {
       var response = await http.get(Uri.parse(baseUrl), headers: {
         'Authorization': 'Bearer $token',
-        'Accept': 'applcation/json'
+        'Accept': 'application/json'
       });
 
       var body = json.decode(response.body);
@@ -43,7 +49,6 @@ class AuthRepository {
   }
 
   Future hasToken() async {
-    print('hasToken');
     Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
     final SharedPreferences local = await _prefs;
     final String token = local.getString("token_sanctum") ?? null;
@@ -52,18 +57,14 @@ class AuthRepository {
   }
 
   Future setLocalToken(String token) async {
-    print('setLocalToken');
     Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
     final SharedPreferences local = await _prefs;
     local.setString("token_sanctum", token);
   }
 
   Future unsetLocalToken() async {
-    print('unsetLocalToken');
     Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
     final SharedPreferences local = await _prefs;
     local.setString("token_sanctum", null.toString());
-    // local.setString("token_sanctum", toString());
   }
-
 }

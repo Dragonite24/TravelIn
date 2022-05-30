@@ -25,7 +25,9 @@ class AuthPage extends StatefulWidget {
 class _AuthPageState extends State<AuthPage> {
   TextEditingController _usernameController = TextEditingController();
   TextEditingController _passwordController = TextEditingController();
+
   AuthBloc get _authBloc => widget.authBloc;
+
   void _login() {
     widget.authBloc.add(LoginProcess(
       email: _usernameController.text,
@@ -38,19 +40,17 @@ class _AuthPageState extends State<AuthPage> {
     return BlocBuilder<AuthBloc, AuthState>(
       bloc: widget.authBloc,
       builder: (context, AuthState state) {
+        print('AUTH_PAGE_STATE: ${state}');
         if (state is AuthInit) {
-          print('AuthInit');
           widget.authBloc.add(AuthCheck());
           return const Center(
             child: CircularProgressIndicator(),
           );
         }
         if (state is AuthHasToken || state is AuthData) {
-          return Navbar();
-
+          return Navbar(authBloc: widget.authBloc);
         }
         if (state is AuthFailed || state is LoginFailed) {
-          print('LoginFailed || AuthFailed');
           return Scaffold(
             body: SafeArea(
               child: Container(
@@ -116,9 +116,7 @@ class _AuthPageState extends State<AuthPage> {
           print('LoginSuccess');
           return Scaffold(body: Indicator.circle);
         }
-
-
-        return Scaffold(body: Center(child: Text(state.toString())),);
+        return Indicator.circle;
       },
     );
   }
