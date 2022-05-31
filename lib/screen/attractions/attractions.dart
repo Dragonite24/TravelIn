@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:travel_in/blocs/attractions/attractions_bloc.dart';
 import 'package:travel_in/blocs/attractions/attractions_state.dart';
+import 'package:travel_in/client.dart';
 import 'package:travel_in/components/indicator.dart';
 import 'package:travel_in/constants.dart';
+import 'package:travel_in/mocks/mocks.dart';
 import 'package:travel_in/models/attractions_model.dart';
 import 'package:travel_in/screen/attractions/attraction_card.dart';
 
@@ -12,12 +15,34 @@ class AttractionsPage extends StatefulWidget {
   _AttractionsPageState createState() => _AttractionsPageState();
 }
 
-
 class _AttractionsPageState extends State<AttractionsPage> {
-  double latitude = 0.0,
-      longitude = 0.0;
-  List<Attraction> attractions;
+  double latitude = 0.0, longitude = 0.0;
+  List<Attraction> attractions = mocks.getAttractions();
 
+  /// Получает местоположение пользователя (lat, long)
+  Future<bool> getMyLocation() async {
+    try {
+      await client.determinePosition().then(
+            (value) => {
+              latitude = value.latitude,
+              longitude = value.longitude,
+            },
+          );
+      return true;
+    } catch (e) {
+      print(e);
+      return false;
+    }
+  }
+
+  String getDistance(double latMark, double longMark) {
+    return parseDistance(
+        Geolocator.distanceBetween(latitude, longitude, latMark, longMark));
+  }
+
+  String parseDistance(double data) {
+    return '${(data / 1000).toStringAsFixed(3)} км';
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -25,94 +50,105 @@ class _AttractionsPageState extends State<AttractionsPage> {
       body: BlocBuilder<AttractionsBloc, AttractionsChangeState>(
         builder: (BuildContext context, AttractionsChangeState state) {
           if (state is GetAttractionsState) {
-            attractions = state.attractions;
-            return SizedBox(
-              child: ClipRRect(
-                child: ListView.builder(
-                  itemCount: attractions.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    return GestureDetector(
-                      onTap: () =>
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) =>
-                                  AttractionCard(
-                                    attraction: attractions[index],
-                                  ),
+            return FutureBuilder<bool>(
+              future: getMyLocation(),
+              builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
+                if (snapshot.hasData) {
+                  return SizedBox(
+                    child: ClipRRect(
+                      child: ListView.builder(
+                        itemCount: attractions.length,
+                        shrinkWrap: true,
+                        itemBuilder: (BuildContext context, int index) {
+                          return GestureDetector(
+                            onTap: () => Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => AttractionCard(
+                                  attraction: attractions[index],
+                                ),
+                              ),
                             ),
-                          ),
-                      child: SizedBox(
-                        height: 90,
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            mainAxisSize: MainAxisSize.max,
-                            children: [
-                              Container(
-                                child: CircleAvatar(
-                                  radius: 30,
-                                  backgroundColor: CColors.grey,
+                            child: SizedBox(
+                              height: 90,
+                              child: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  mainAxisSize: MainAxisSize.max,
+                                  children: [
+                                    Container(
+                                      child: CircleAvatar(
+                                        radius: 30,
+                                        backgroundColor: CColors.grey,
 //backgroundImage: NetworkImage(attractionData[index].imageUrl),
-                                ),
-                              ),
-                              Expanded(
-                                child: Container(
-                                  padding: EdgeInsets.symmetric(
-                                    horizontal: 16.0,
-                                    vertical: 8.0,
-                                  ),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                    CrossAxisAlignment.start,
-                                    mainAxisAlignment:
-                                    MainAxisAlignment.spaceEvenly,
-                                    children: <Widget>[
-                                      Row(
-                                        children: [
-                                          Expanded(
-                                            child: Text(
-                                              attractions[index].name,
-                                              overflow: TextOverflow.ellipsis,
-                                              style: TextStyle(
-                                                color: CColors.black,
-                                                fontSize: 14,
-                                                fontWeight: FontWeight.bold,
-                                              ),
+                                      ),
+                                    ),
+                                    Expanded(
+                                      child: Container(
+                                        padding: EdgeInsets.symmetric(
+                                          horizontal: 16.0,
+                                          vertical: 8.0,
+                                        ),
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceEvenly,
+                                          children: <Widget>[
+                                            Row(
+                                              children: [
+                                                Expanded(
+                                                  child: Text(
+                                                    attractions[index].name,
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                    style: TextStyle(
+                                                      color: CColors.black,
+                                                      fontSize: 14,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
                                             ),
-                                          ),
-                                        ],
-                                      ),
-                                      Text(
-                                        '123 км, до вас',
-                                        style: TextStyle(
-                                          color: CColors.grey,
-                                          fontSize: 12.0,
+                                            Text(
+                                              '${getDistance(attractions[index].latitude, attractions[index].longitude)}, до вас',
+                                              style: TextStyle(
+                                                color: CColors.grey,
+                                                fontSize: 12.0,
+                                              ),
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                            if (!attractions[index]
+                                                .rating
+                                                .isNaN)
+                                              Text(
+                                                'Рейтинг: ${attractions[index].rating.toStringAsPrecision(2)}',
+                                                style: TextStyle(
+                                                  color: CColors.dark_grey,
+                                                  fontSize: 14.0,
+                                                ),
+                                              ),
+                                          ],
                                         ),
-                                        overflow: TextOverflow.ellipsis,
                                       ),
-                                      if (!attractions[index].rating.isNaN)
-                                        Text(
-                                          'Рейтинг: ${attractions[index]
-                                              .rating.toStringAsPrecision(2)}',
-                                          style: TextStyle(
-                                            color: CColors.dark_grey,
-                                            fontSize: 14.0,
-                                          ),
-                                        ),
-                                    ],
-                                  ),
+                                    ),
+                                  ],
                                 ),
                               ),
-                            ],
-                          ),
-                        ),
+                            ),
+                          );
+                        },
                       ),
-                    );
-                  },
-                ),
-              ),
+                    ),
+                  );
+                } else {
+                  return Indicator.circle;
+                }
+              },
             );
           } else {
             return Indicator.circle;
@@ -123,30 +159,6 @@ class _AttractionsPageState extends State<AttractionsPage> {
   }
 }
 
-// /// Получает местоположение пользователя (lat, long)
-// Future<bool> getMyLocation() async {
-//   try {
-//     await client.determinePosition().then(
-//           (value) => {
-//             latitude = value.latitude,
-//             longitude = value.longitude,
-//           },
-//         );
-//     return true;
-//   } catch (e) {
-//     print(e);
-//     return false;
-//   }
-// }
-
-// String parseDistance(double data) {
-//   if (data.toString().split('.')[0].length > 3) {
-//     return '${(data / 1000000).toStringAsFixed(3)} км';
-//   }
-//   return '${(data / 1000).toStringAsFixed(1)} м';
-// }
-//
-// double getDistance(double latMark, double longMark) {
 //   const PI = math.pi;
 //   const EARTH_RADIUS = 6372795;
 //
@@ -177,10 +189,3 @@ class _AttractionsPageState extends State<AttractionsPage> {
 //   return result;
 // }
 //
-// /// вычисление расстояний от местоположения пользователя
-// List<Attraction> calculateDistance(List<Attraction> data) {
-//   data.forEach((value) =>
-//       value.distance = getDistance(value.latitude, value.latitude));
-//
-//   return data;
-// }
