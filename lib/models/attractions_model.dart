@@ -1,40 +1,68 @@
-/// Достопримечательность
+import 'package:meta/meta.dart';
+import 'dart:convert';
+
+AttractionModel attractionModelFromJson(String str) =>
+    AttractionModel.fromJson(json.decode(str));
+
+class AttractionModel {
+  AttractionModel({
+    this.attractions,
+  });
+
+  List<Attraction> attractions;
+
+  factory AttractionModel.fromJson(Map<String, dynamic> json) =>
+      AttractionModel(
+        attractions: List<Attraction>.from(
+            json["attractions"].map((x) => Attraction.fromJson(x))),
+      );
+}
+
 class Attraction {
-  final String name;
-  final int id;
+  Attraction({
+    this.name,
+    this.id,
+    this.questions,
+    this.imageUrl,
+    this.latitude,
+    this.longitude,
+    this.rating,
+    this.distance,
+  });
 
-  /// Ссылка на изображение достопримечательности
+  String name;
+  int id;
+  List<Question> questions;
   String imageUrl;
-
-  double _rating = 1.0;
-
-  /// между 1.0 и 5.0 или Nan если еще нет рейтинга
-  set rating(double value) {
-    if (value <= 5.0 && value >= 1.0 || value.isNaN) {
-      _rating = value;
-    }
-  }
-
-  /// между 1.0 и 5.0 или Nan если еще нет рейтинга
-  double get rating => _rating;
-
-  /// Часто задаваемые и интересные вопросы
-  Map<String, String> questions = {};
-
-  /// Координаты: широта, долгота.
-  double latitude, longitude;
-
-  /// Расстояние до местоположения
+  double latitude;
+  double longitude;
+  double rating;
   double distance;
 
-  Attraction(this.name, this.id,
-      {this.questions,
-      this.latitude,
-      this.longitude,
-      this.imageUrl,
-      this.distance,
-      double rating = double.nan}) {
-    this.distance = 0;
-    this.rating = rating;
-  }
+  factory Attraction.fromJson(Map<String, dynamic> json) => Attraction(
+        name: json["name"] ?? '',
+        id: json["id"],
+        questions: List<Question>.from(
+            json["questions"].map((x) => Question.fromJson(x))),
+        imageUrl: json["imageUrl"],
+        latitude: json["latitude"].toDouble(),
+        longitude: json["longitude"].toDouble(),
+        rating: json["rating"] == null ? null : json["rating"].toDouble(),
+        distance: json["distance"] == null ? null : json["distance"],
+      );
+}
+
+class Question {
+  Question({
+    @required this.question,
+    @required this.answer,
+  });
+
+  String question;
+  String answer;
+
+  factory Question.fromJson(Map<String, dynamic> json) => Question(
+        question: json["question"],
+        answer: json["answer"],
+      );
 }

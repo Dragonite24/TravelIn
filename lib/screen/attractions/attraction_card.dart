@@ -55,14 +55,14 @@ class _AttractionCardState extends State<AttractionCard> {
                     style: TextStyle(color: CColors.dark_grey, fontSize: 20),
                   ),
                 ),
-                for (String question in widget.attraction.questions.keys) ...[
+                for (Question question in widget.attraction.questions) ...[
                   Padding(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 16,
                       vertical: 8,
                     ),
                     child: Text(
-                      question,
+                      question.question,
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
                   ),
@@ -71,7 +71,7 @@ class _AttractionCardState extends State<AttractionCard> {
                       horizontal: 16,
                       vertical: 8,
                     ),
-                    child: Text(widget.attraction.questions[question]),
+                    child: Text(question.answer),
                   ),
                 ],
                 Container(

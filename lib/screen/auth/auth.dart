@@ -26,8 +26,6 @@ class _AuthPageState extends State<AuthPage> {
   TextEditingController _usernameController = TextEditingController();
   TextEditingController _passwordController = TextEditingController();
 
-  AuthBloc get _authBloc => widget.authBloc;
-
   void _login() {
     widget.authBloc.add(LoginProcess(
       email: _usernameController.text,

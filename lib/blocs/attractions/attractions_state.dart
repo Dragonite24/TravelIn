@@ -1,24 +1,25 @@
 import 'package:equatable/equatable.dart';
+import 'package:geocode/geocode.dart';
 import 'package:travel_in/models/attractions_model.dart';
 
-abstract class AttractionsChangeState extends Equatable {
-  const AttractionsChangeState();
+abstract class AttractionsState extends Equatable {
+  @override
+  List<Object> get props => [];
 }
 
-class GetAttractionsState extends AttractionsChangeState {
+class AttractionsLoadingState extends AttractionsState {}
+
+class AttractionsInitialState extends AttractionsState {}
+
+class AttractionsLoadedState extends AttractionsState {
   final List<Attraction> attractions;
+  // final Address country;
 
-  GetAttractionsState(this.attractions);
-
-  @override
-  List<Object> get props => [attractions];
+  AttractionsLoadedState({this.attractions});
 }
 
-class SetAttractionsState extends AttractionsChangeState {
-  final List<Attraction> attractions;
+class AttractionsErrorState extends AttractionsState {
+  final error;
 
-  SetAttractionsState(this.attractions);
-
-  @override
-  List<Object> get props => [attractions];
+  AttractionsErrorState({this.error});
 }

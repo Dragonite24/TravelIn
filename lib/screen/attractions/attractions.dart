@@ -2,12 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:travel_in/blocs/attractions/attractions_bloc.dart';
+import 'package:travel_in/blocs/attractions/attractions_event.dart';
 import 'package:travel_in/blocs/attractions/attractions_state.dart';
 import 'package:travel_in/client.dart';
 import 'package:travel_in/components/indicator.dart';
 import 'package:travel_in/constants.dart';
-import 'package:travel_in/mocks/mocks.dart';
-import 'package:travel_in/models/attractions_model.dart';
 import 'package:travel_in/screen/attractions/attraction_card.dart';
 
 class AttractionsPage extends StatefulWidget {
@@ -15,9 +14,11 @@ class AttractionsPage extends StatefulWidget {
   _AttractionsPageState createState() => _AttractionsPageState();
 }
 
-class _AttractionsPageState extends State<AttractionsPage> {
+class _AttractionsPageState extends State<AttractionsPage> with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
+
   double latitude = 0.0, longitude = 0.0;
-  List<Attraction> attractions = mocks.getAttractions();
 
   /// Получает местоположение пользователя (lat, long)
   Future<bool> getMyLocation() async {
@@ -45,115 +46,138 @@ class _AttractionsPageState extends State<AttractionsPage> {
   }
 
   @override
+  void initState() {
+    loadAttractions();
+    super.initState();
+  }
+
+  loadAttractions() async {
+    if(!(context.read<AttractionsBloc>().state is AttractionsLoadedState)) {
+      context.read<AttractionsBloc>().add(AttractionsEvents.fetchAttractions);
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: BlocBuilder<AttractionsBloc, AttractionsChangeState>(
-        builder: (BuildContext context, AttractionsChangeState state) {
-          if (state is GetAttractionsState) {
-            return FutureBuilder<bool>(
-              future: getMyLocation(),
-              builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
-                if (snapshot.hasData) {
-                  return SizedBox(
-                    child: ClipRRect(
-                      child: ListView.builder(
-                        itemCount: attractions.length,
-                        shrinkWrap: true,
-                        itemBuilder: (BuildContext context, int index) {
-                          return GestureDetector(
-                            onTap: () => Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => AttractionCard(
-                                  attraction: attractions[index],
-                                ),
+      appBar: AppBar(
+        title: Text('Ярославль'),
+      ),
+      body: SafeArea(
+        child: BlocBuilder<AttractionsBloc, AttractionsState>(
+          builder: (BuildContext context, AttractionsState state) {
+            if (state is AttractionsLoadedState) {
+              return FutureBuilder<bool>(
+                future: getMyLocation(),
+                builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
+                  if (snapshot.hasData) {
+                    return Column(
+                      children: [
+                        Expanded(
+                          child: SizedBox(
+                            child: ClipRRect(
+                              child: ListView.builder(
+                                itemCount: state.attractions.length,
+                                shrinkWrap: true,
+                                itemBuilder: (BuildContext context, int index) {
+                                  return row(state, index);
+                                },
                               ),
                             ),
-                            child: SizedBox(
-                              height: 90,
-                              child: Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  mainAxisSize: MainAxisSize.max,
-                                  children: [
-                                    Container(
-                                      child: CircleAvatar(
-                                        radius: 30,
-                                        backgroundColor: CColors.grey,
-//backgroundImage: NetworkImage(attractionData[index].imageUrl),
-                                      ),
-                                    ),
-                                    Expanded(
-                                      child: Container(
-                                        padding: EdgeInsets.symmetric(
-                                          horizontal: 16.0,
-                                          vertical: 8.0,
-                                        ),
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceEvenly,
-                                          children: <Widget>[
-                                            Row(
-                                              children: [
-                                                Expanded(
-                                                  child: Text(
-                                                    attractions[index].name,
-                                                    overflow:
-                                                        TextOverflow.ellipsis,
-                                                    style: TextStyle(
-                                                      color: CColors.black,
-                                                      fontSize: 14,
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                    ),
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                            Text(
-                                              '${getDistance(attractions[index].latitude, attractions[index].longitude)}, до вас',
-                                              style: TextStyle(
-                                                color: CColors.grey,
-                                                fontSize: 12.0,
-                                              ),
-                                              overflow: TextOverflow.ellipsis,
-                                            ),
-                                            if (!attractions[index]
-                                                .rating
-                                                .isNaN)
-                                              Text(
-                                                'Рейтинг: ${attractions[index].rating.toStringAsPrecision(2)}',
-                                                style: TextStyle(
-                                                  color: CColors.dark_grey,
-                                                  fontSize: 14.0,
-                                                ),
-                                              ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
+                          ),
+                        ),
+                      ],
+                    );
+                  } else {
+                    return Indicator.circle;
+                  }
+                },
+              );
+            } else if (state is AttractionsLoadingState) {
+              return Indicator.circle;
+            } else if (state is AttractionsErrorState) {
+              return Scaffold(body: Center(child: Text(state.error)));
+            } else {
+              return Indicator.circle;
+            }
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget row(state, index) {
+    return GestureDetector(
+      onTap: () => Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => AttractionCard(
+            attraction: state.attractions[index],
+          ),
+        ),
+      ),
+      child: SizedBox(
+        height: 90,
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            mainAxisSize: MainAxisSize.max,
+            children: [
+              Container(
+                child: CircleAvatar(
+                  radius: 30,
+                  backgroundColor: CColors.light_grey,
+                  backgroundImage: NetworkImage(state.attractions[index].imageUrl),
+                ),
+              ),
+              Expanded(
+                child: Container(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 16.0,
+                    vertical: 8.0,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: <Widget>[
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              state.attractions[index].name,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
                               ),
                             ),
-                          );
-                        },
+                          ),
+                        ],
                       ),
-                    ),
-                  );
-                } else {
-                  return Indicator.circle;
-                }
-              },
-            );
-          } else {
-            return Indicator.circle;
-          }
-        },
+                      Text(
+                        '${getDistance(state.attractions[index].latitude, state.attractions[index].longitude)}, до вас',
+                        style: TextStyle(
+                          color: CColors.grey,
+                          fontSize: 12.0,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      if (state.attractions[index].rating != null)
+                        Text(
+                          'Рейтинг: ${state.attractions[index].rating.toStringAsPrecision(2)}',
+                          style: TextStyle(
+                            color: CColors.dark_grey,
+                            fontSize: 14.0,
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

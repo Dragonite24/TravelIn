@@ -17,10 +17,11 @@ class MapPage extends StatefulWidget {
   _MapPageState createState() => _MapPageState();
 }
 
-class _MapPageState extends State<MapPage> {
-  Completer<GoogleMapController> _googleMapController = Completer();
+class _MapPageState extends State<MapPage> with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
 
-  List<Attraction> _attractions;
+  Completer<GoogleMapController> _googleMapController = Completer();
 
   Set<Marker> _markers = {};
   int selectedNumber = 0;
@@ -36,7 +37,6 @@ class _MapPageState extends State<MapPage> {
   void initState() {
     try {
       getMyLocation();
-      getMarkers();
     } catch (e) {
       print(e);
     }
@@ -49,7 +49,6 @@ class _MapPageState extends State<MapPage> {
       final myPosition = await client.determinePosition();
       latitude = myPosition.latitude;
       longitude = myPosition.longitude;
-      getMarkers();
       setState(() {});
       _changeCameraPosition();
     } catch (e) {
@@ -57,60 +56,57 @@ class _MapPageState extends State<MapPage> {
     }
   }
 
-  void getMarkers() async {
-    try {
-      _markers = {};
+  Future<Set<Marker>> getMarkers(AttractionsLoadedState state) async {
+    _markers = {};
+    _markers.add(
+      Marker(
+        markerId: MarkerId('my_position'),
+        position: LatLng(latitude, longitude),
+        icon: await BitmapDescriptor.fromAssetImage(
+          ImageConfiguration(
+            size: Size(67.5, 54),
+          ),
+          'assets/map/green_marker.png',
+        ),
+      ),
+    );
+    for (int i = 0; i < state.attractions.length; i++) {
       _markers.add(
         Marker(
-          markerId: MarkerId('my_position'),
-          position: LatLng(latitude, longitude),
+          onTap: () {
+            print("$i");
+            popupOpacity = 1;
+            setState(() {
+              selectedNumber = i;
+            });
+          },
+          markerId: MarkerId(i.toString()),
+          position: LatLng(
+            state.attractions[i].latitude,
+            state.attractions[i].longitude,
+          ),
           icon: await BitmapDescriptor.fromAssetImage(
             ImageConfiguration(
               size: Size(67.5, 54),
             ),
-            'assets/map/green_marker.png',
+            'assets/map/marker.png',
+          ),
+          infoWindow: InfoWindow(
+            title: "${state.attractions[i].name}",
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => AttractionCard(
+                    attraction: state.attractions[i],
+                  ),
+                ),
+              );
+            },
           ),
         ),
       );
-      for (int i = 0; i < _attractions.length; i++) {
-        _markers.add(
-          Marker(
-            onTap: () {
-              print("$i");
-              popupOpacity = 1;
-              setState(() {
-                selectedNumber = i;
-              });
-            },
-            markerId: MarkerId(i.toString()),
-            position: LatLng(
-              _attractions[i].latitude,
-              _attractions[i].longitude,
-            ),
-            icon: await BitmapDescriptor.fromAssetImage(
-              ImageConfiguration(
-                size: Size(67.5, 54),
-              ),
-              'assets/map/marker.png',
-            ),
-            infoWindow: InfoWindow(
-              title: "${_attractions[i].name}",
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => AttractionCard(
-                      attraction: _attractions[i],
-                    ),
-                  ),
-                );
-              },
-            ),
-          ),
-        );
-      }
-    } catch (e) {
-      print(e);
+      return _markers;
     }
   }
 
@@ -168,135 +164,158 @@ class _MapPageState extends State<MapPage> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<AttractionsBloc, AttractionsChangeState>(
-      builder: (BuildContext context, AttractionsChangeState state) {
-        if (state is GetAttractionsState) {
-          _attractions = state.attractions;
+    return BlocBuilder<AttractionsBloc, AttractionsState>(
+      builder: (BuildContext context, AttractionsState state) {
+        if (state is AttractionsLoadedState) {
           return Scaffold(
-            body: SafeArea(
-              child: Stack(
-                children: [
-                  GoogleMap(
-                    markers: _markers,
-                    zoomControlsEnabled: false,
-                    polylines: Set<Polyline>.of(lines.values),
-                    onTap: (value) => {
-                      popupOpacity = 0,
-                      setState(() {}),
-                    },
-                    initialCameraPosition: CameraPosition(
-                      target: LatLng(
-                        _attractions.first.latitude,
-                        _attractions.first.longitude,
-                      ),
-                      zoom: 14.4746,
-                    ),
-                    onMapCreated: (GoogleMapController controller) {
-                      _googleMapController.complete(controller);
-                    },
-                  ),
-                  AnimatedOpacity(
-                    opacity: popupOpacity,
-                    duration: Duration(milliseconds: 400),
-                    child: Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          SizedBox(
-                            width: double.infinity,
-                            child: Padding(
-                              padding: EdgeInsets.all(16),
-                              child: DecoratedBox(
-                                decoration: BoxDecoration(
-                                    color: CColors.white,
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: CColors.grey,
-                                        spreadRadius: 1,
-                                        blurRadius: 5,
-                                        offset: Offset(0, 2),
-                                      ),
-                                    ],
-                                    borderRadius: BorderRadius.circular(16)),
-                                child: Padding(
-                                  padding: EdgeInsets.all(16),
-                                  child: DecoratedBox(
-                                    decoration: BoxDecoration(
-                                        color: CColors.white,
-                                        borderRadius:
-                                            BorderRadius.circular(16)),
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.start,
-                                      children: [
-                                        Expanded(
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
+            body: FutureBuilder<Set<Marker>>(
+              future: getMarkers(state),
+              builder:
+                  (BuildContext context, AsyncSnapshot<Set<Marker>> snapshot) {
+                if (snapshot.data.isNotEmpty) {
+                  return SafeArea(
+                    child: Stack(
+                      children: [
+                        GoogleMap(
+                          markers: snapshot.data,
+                          zoomControlsEnabled: false,
+                          polylines: Set<Polyline>.of(lines.values),
+                          onTap: (value) => {
+                            popupOpacity = 0,
+                            setState(() {}),
+                          },
+                          initialCameraPosition: CameraPosition(
+                            target: LatLng(
+                              state.attractions.first.latitude,
+                              state.attractions.first.longitude,
+                            ),
+                            zoom: 14.4746,
+                          ),
+                          onMapCreated: (GoogleMapController controller) {
+                            _googleMapController.complete(controller);
+                          },
+                        ),
+                        AnimatedOpacity(
+                          opacity: popupOpacity,
+                          duration: Duration(milliseconds: 400),
+                          child: Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                SizedBox(
+                                  width: double.infinity,
+                                  child: Padding(
+                                    padding: EdgeInsets.all(16),
+                                    child: DecoratedBox(
+                                      decoration: BoxDecoration(
+                                          color: CColors.white,
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: CColors.grey,
+                                              spreadRadius: 1,
+                                              blurRadius: 5,
+                                              offset: Offset(0, 2),
+                                            ),
+                                          ],
+                                          borderRadius:
+                                              BorderRadius.circular(16)),
+                                      child: Padding(
+                                        padding: EdgeInsets.all(16),
+                                        child: DecoratedBox(
+                                          decoration: BoxDecoration(
+                                              color: CColors.white,
+                                              borderRadius:
+                                                  BorderRadius.circular(16)),
+                                          child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.start,
                                             children: [
-                                              FittedBox(
-                                                child: Text(
-                                                  _attractions[selectedNumber]
-                                                      .name,
-                                                  style: TextStyle(
-                                                      color: CColors.dark_grey,
-                                                      fontSize: 18),
+                                              Expanded(
+                                                child: Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    FittedBox(
+                                                      child: Text(
+                                                        state
+                                                            .attractions[
+                                                                selectedNumber]
+                                                            .name,
+                                                        style: TextStyle(
+                                                            color: CColors
+                                                                .dark_grey,
+                                                            fontSize: 18),
+                                                      ),
+                                                      alignment:
+                                                          Alignment.topLeft,
+                                                    ),
+                                                    Text(
+                                                      state
+                                                          .attractions[
+                                                              selectedNumber]
+                                                          .latitude
+                                                          .toString(),
+                                                      style: TextStyle(
+                                                          color: CColors.grey,
+                                                          fontSize: 12),
+                                                    ),
+                                                    Text(
+                                                      state
+                                                          .attractions[
+                                                              selectedNumber]
+                                                          .longitude
+                                                          .toString(),
+                                                      style: TextStyle(
+                                                          color: CColors.grey,
+                                                          fontSize: 12),
+                                                    ),
+                                                  ],
                                                 ),
-                                                alignment: Alignment.topLeft,
                                               ),
-                                              Text(
-                                                _attractions[selectedNumber]
-                                                    .latitude
-                                                    .toString(),
-                                                style: TextStyle(
-                                                    color: CColors.grey,
-                                                    fontSize: 12),
-                                              ),
-                                              Text(
-                                                _attractions[selectedNumber]
-                                                    .longitude
-                                                    .toString(),
-                                                style: TextStyle(
-                                                    color: CColors.grey,
-                                                    fontSize: 12),
-                                              ),
+                                              InkWell(
+                                                onTap: () => {
+                                                  _getPolyline(
+                                                      state
+                                                          .attractions[
+                                                              selectedNumber]
+                                                          .latitude,
+                                                      state
+                                                          .attractions[
+                                                              selectedNumber]
+                                                          .longitude),
+                                                  setState(() {})
+                                                },
+                                                child: Container(
+                                                  height: 60,
+                                                  width: 60,
+                                                  child: Center(
+                                                    child: Icon(
+                                                      Icons
+                                                          .directions_walk_rounded,
+                                                      color: CColors.dark_grey,
+                                                      size: 30,
+                                                    ),
+                                                  ),
+                                                ),
+                                              )
                                             ],
                                           ),
                                         ),
-                                        InkWell(
-                                          onTap: () => {
-                                            _getPolyline(
-                                                _attractions[selectedNumber]
-                                                    .latitude,
-                                                _attractions[selectedNumber]
-                                                    .longitude),
-                                            setState(() {})
-                                          },
-                                          child: Container(
-                                            height: 60,
-                                            width: 60,
-                                            child: Center(
-                                              child: Icon(
-                                                Icons.directions_walk_rounded,
-                                                color: CColors.dark_grey,
-                                                size: 30,
-                                              ),
-                                            ),
-                                          ),
-                                        )
-                                      ],
+                                      ),
                                     ),
                                   ),
                                 ),
-                              ),
+                              ],
                             ),
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
-                  ),
-                ],
-              ),
+                  );
+                } else {
+                  return Indicator.circle;
+                }
+              },
             ),
           );
         } else {

@@ -1,8 +1,10 @@
 import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:travel_in/models/attractions_model.dart';
 import 'package:travel_in/models/data_model.dart';
 import 'package:http/http.dart' as http;
+import 'dart:developer';
 
 class AuthRepository {
   var dio = Dio();
@@ -30,6 +32,24 @@ class AuthRepository {
       return Logout.fromJson(response.data);
     } else {
       throw ('userLogout STATUS CODE: ' + response.statusCode.toString());
+    }
+  }
+
+  Future<AttractionModel> getAttractions() async {
+    final url = baseUrl + "getAttractions";
+    try {
+      Response response = await dio.get(url);
+
+      if (response.statusCode == 200) {
+        final AttractionModel attractionModel =
+            AttractionModel.fromJson(response.data);
+        print('done');
+        return attractionModel;
+      } else {
+        throw ('getAttractions STATUS CODE: ' + response.statusCode.toString());
+      }
+    } catch (e) {
+      throw ('getAttractions error: $e');
     }
   }
 

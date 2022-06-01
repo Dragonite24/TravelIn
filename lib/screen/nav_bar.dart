@@ -71,6 +71,7 @@ class NavbarState extends State<Navbar> {
           )),
       body: PageView(
         physics: const NeverScrollableScrollPhysics(),
+
         controller: _pageController,
         children: items,
       ),
