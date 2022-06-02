@@ -19,7 +19,7 @@ dependencies:
   flutter_tts: ^2.0.0
   google_maps_flutter: ^2.0.3
   geolocator: ^8.1.1
-  geocode: ^1.0.1
+  geocoding: ^2.0.4
   flutter_svg: ^1.0.2
   dio: ^4.0.4
   flutter_bloc: ^7.3.3

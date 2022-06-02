@@ -1,10 +1,11 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:travel_in/models/attractions_model.dart';
 import 'package:travel_in/models/data_model.dart';
 import 'package:http/http.dart' as http;
-import 'dart:developer';
+import 'package:dio/adapter.dart';
 
 class AuthRepository {
   var dio = Dio();
@@ -54,7 +55,6 @@ class AuthRepository {
   }
 
   Future getData(String token) async {
-    print('getData');
     try {
       var response = await http.get(Uri.parse(baseUrl), headers: {
         'Authorization': 'Bearer $token',

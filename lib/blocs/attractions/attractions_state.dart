@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:geocode/geocode.dart';
+import 'package:geocoding/geocoding.dart';
 import 'package:travel_in/models/attractions_model.dart';
 
 abstract class AttractionsState extends Equatable {
@@ -13,9 +13,11 @@ class AttractionsInitialState extends AttractionsState {}
 
 class AttractionsLoadedState extends AttractionsState {
   final List<Attraction> attractions;
-  // final Address country;
+  final List<Placemark> country;
+  final lat;
+  final lon;
 
-  AttractionsLoadedState({this.attractions});
+  AttractionsLoadedState({this.attractions, this.country, this.lat, this.lon});
 }
 
 class AttractionsErrorState extends AttractionsState {

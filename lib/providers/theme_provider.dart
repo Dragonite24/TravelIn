@@ -14,10 +14,10 @@ class ThemeChangeProvider {
         theme = AppTheme.BlueLight;
       } else if (prefData == 'BlueDark') {
         theme = AppTheme.BlueDark;
-      } else if (prefData == 'GreenLight') {
-        theme = AppTheme.GreenLight;
-      } else if (prefData == 'GreenDark') {
-        theme = AppTheme.GreenDark;
+      } else if (prefData == 'RedLight') {
+        theme = AppTheme.RedLight;
+      } else if (prefData == 'RedDark') {
+        theme = AppTheme.RedDark;
       }
     }
     return theme;

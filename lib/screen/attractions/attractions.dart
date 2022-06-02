@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:travel_in/blocs/attractions/attractions_bloc.dart';
 import 'package:travel_in/blocs/attractions/attractions_event.dart';
@@ -8,13 +9,15 @@ import 'package:travel_in/client.dart';
 import 'package:travel_in/components/indicator.dart';
 import 'package:travel_in/constants.dart';
 import 'package:travel_in/screen/attractions/attraction_card.dart';
+import 'package:travel_in/screen/guide/prear.dart';
 
 class AttractionsPage extends StatefulWidget {
   @override
   _AttractionsPageState createState() => _AttractionsPageState();
 }
 
-class _AttractionsPageState extends State<AttractionsPage> with AutomaticKeepAliveClientMixin {
+class _AttractionsPageState extends State<AttractionsPage>
+    with AutomaticKeepAliveClientMixin {
   @override
   bool get wantKeepAlive => true;
 
@@ -52,22 +55,25 @@ class _AttractionsPageState extends State<AttractionsPage> with AutomaticKeepAli
   }
 
   loadAttractions() async {
-    if(!(context.read<AttractionsBloc>().state is AttractionsLoadedState)) {
+    if (!(context.read<AttractionsBloc>().state is AttractionsLoadedState)) {
       context.read<AttractionsBloc>().add(AttractionsEvents.fetchAttractions);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Ярославль'),
-      ),
-      body: SafeArea(
-        child: BlocBuilder<AttractionsBloc, AttractionsState>(
-          builder: (BuildContext context, AttractionsState state) {
-            if (state is AttractionsLoadedState) {
-              return FutureBuilder<bool>(
+    return BlocBuilder<AttractionsBloc, AttractionsState>(
+      builder: (BuildContext context, AttractionsState state) {
+        if (state is AttractionsLoadedState) {
+          String country =
+              '${state.country[0].country}, ${state.country[0].locality}';
+          print(country);
+          return Scaffold(
+            appBar: AppBar(
+              title: Text(country.toString()),
+            ),
+            body: SafeArea(
+              child: FutureBuilder<bool>(
                 future: getMyLocation(),
                 builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
                   if (snapshot.hasData) {
@@ -92,17 +98,17 @@ class _AttractionsPageState extends State<AttractionsPage> with AutomaticKeepAli
                     return Indicator.circle;
                   }
                 },
-              );
-            } else if (state is AttractionsLoadingState) {
-              return Indicator.circle;
-            } else if (state is AttractionsErrorState) {
-              return Scaffold(body: Center(child: Text(state.error)));
-            } else {
-              return Indicator.circle;
-            }
-          },
-        ),
-      ),
+              ),
+            ),
+          );
+        } else if (state is AttractionsLoadingState) {
+          return Indicator.circle;
+        } else if (state is AttractionsErrorState) {
+          return Scaffold(body: Center(child: Text(state.error)));
+        } else {
+          return Indicator.circle;
+        }
+      },
     );
   }
 
@@ -124,11 +130,12 @@ class _AttractionsPageState extends State<AttractionsPage> with AutomaticKeepAli
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             mainAxisSize: MainAxisSize.max,
             children: [
-              Container(
+              SizedBox(
                 child: CircleAvatar(
                   radius: 30,
                   backgroundColor: CColors.light_grey,
-                  backgroundImage: NetworkImage(state.attractions[index].imageUrl),
+                  backgroundImage:
+                      NetworkImage(state.attractions[index].imageUrl),
                 ),
               ),
               Expanded(
@@ -175,6 +182,25 @@ class _AttractionsPageState extends State<AttractionsPage> with AutomaticKeepAli
                   ),
                 ),
               ),
+              InkWell(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => PreARPage(
+                        index: index,
+                      ),
+                    ),
+                  );
+                },
+                child: SizedBox(
+                  width: 60,
+                  height: 60,
+                  child: Icon(
+                    Icons.person_pin_circle_outlined,
+                  ),
+                ),
+              )
             ],
           ),
         ),

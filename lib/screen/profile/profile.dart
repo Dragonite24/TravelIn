@@ -12,6 +12,7 @@ class ProfilePage extends StatefulWidget {
   final AuthBloc authBloc;
 
   const ProfilePage({Key key, this.authBloc}) : super(key: key);
+
   @override
   _ProfilePageState createState() => _ProfilePageState();
 }
@@ -31,7 +32,6 @@ class _ProfilePageState extends State<ProfilePage> {
     AuthBloc authBloc = widget.authBloc;
     return BlocBuilder<AuthBloc, AuthState>(
       builder: (context, AuthState state) {
-        print('state: ${state}');
         if (state is AuthInit) {
           return Scaffold(
             body: SafeArea(
@@ -91,7 +91,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       ),
                     ),
                     for (int i = 1; i < data.length; i++)
-                      Panel(text: data[i],bloc: authBloc)
+                      Panel(text: data[i], bloc: authBloc)
                   ],
                 ),
               ),
@@ -113,34 +113,39 @@ class Panel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: 50,
-      child: Column(
-        children: [
-          const Expanded(
-            child: Divider(color: CColors.grey),
-          ),
-          InkWell(
-            onTap: () => {'Выход' == text ? bloc.add(LoggedOut()) : null},
-            child: Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    text,
-                    style: TextStyle(
+    return InkWell(
+      onTap: () => {
+        'Выход' == text ? bloc.add(LoggedOut()) : null,
+      },
+      child: Container(
+        height: 50,
+        width: double.infinity,
+        child: Column(
+          children: [
+            SizedBox(
+              height: 49,
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      text,
+                      style: TextStyle(
                         fontSize: 16,
-                        color: 'Выход' == text ? CColors.red : null),
-                    textAlign: TextAlign.left,
+                        color: 'Выход' == text ? CColors.red : null,
+                      ),
+                      textAlign: TextAlign.left,
+                    ),
                   ),
-                ),
-                const Icon(
-                  Icons.arrow_forward_ios_rounded,
-                  size: 16,
-                ),
-              ],
+                  const Icon(
+                    Icons.arrow_forward_ios_rounded,
+                    size: 16,
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+            Divider(color: CColors.grey, height: 1),
+          ],
+        ),
       ),
     );
   }

@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:travel_in/blocs/theme/theme_bloc.dart';
 import 'package:travel_in/blocs/theme/theme_event.dart';
 import 'package:travel_in/blocs/theme/theme_state.dart';
+import 'package:travel_in/constants.dart';
 
 
 class Settings extends StatelessWidget {
@@ -36,30 +37,30 @@ class Settings extends StatelessWidget {
                       style: TextStyle(fontSize: 16),
                     ),
                     RadioListTile(
-                      value: 'AppTheme.GreenLight',
+                      value: 'AppTheme.RedLight',
                       groupValue: _groupValue,
-                      title: Text("Светлая тема (зеленый)"),
+                      title: Text("Светлая тема (красный)"),
                       onChanged: (newValue) {
                         BlocProvider.of<ThemeChangeBloc>(context)
-                            .add(SetThemeChangeEvent('GreenLight'));
+                            .add(SetThemeChangeEvent('RedLight'));
                         BlocProvider.of<ThemeChangeBloc>(context)
                             .add(GetThemeChangeEvent());
                       },
-                      activeColor: Colors.green,
+                      activeColor: CColors.red,
                       selected: false,
                     ),
                     RadioListTile(
-                      value: 'AppTheme.GreenDark',
+                      value: 'AppTheme.RedDark',
                       groupValue: _groupValue,
-                      title: Text("Темная тема (зеленый)"),
+                      title: Text("Темная тема (красный)"),
                       onChanged: (newValue) {
                         print(newValue);
                         BlocProvider.of<ThemeChangeBloc>(context)
-                            .add(SetThemeChangeEvent('GreenDark'));
+                            .add(SetThemeChangeEvent('RedDark'));
                         BlocProvider.of<ThemeChangeBloc>(context)
                             .add(GetThemeChangeEvent());
                       },
-                      activeColor: Colors.green[700],
+                      activeColor: CColors.red,
                       selected: false,
                     ),
                     RadioListTile(
