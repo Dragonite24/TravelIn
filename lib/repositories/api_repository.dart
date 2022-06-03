@@ -8,15 +8,18 @@ import 'package:http/http.dart' as http;
 import 'package:dio/adapter.dart';
 
 class AuthRepository {
-  var dio = Dio();
-  static const baseUrl = 'https://www.mockachino.com/192910f0-ae70-4e/';
+  var dio = Dio(BaseOptions(
+        baseUrl: "https://www.mockachino.com/192910f0-ae70-4e/",
+        connectTimeout: 8000,
+        receiveTimeout: 8000,
+        headers: {HttpHeaders.userAgentHeader: 'dio', 'common-header': 'xx'},
+      ));
 
   Future loginUser(String _email, String _password) async {
     final data = {"login": _password, "password": _password};
-    final url = baseUrl + "loginUser";
 
     Response response = await dio.post(
-      url,
+      "loginUser",
       data: data,
     );
     if (response.statusCode == 200) {
@@ -27,8 +30,7 @@ class AuthRepository {
   }
 
   Future userLogout(String token) async {
-    final url = baseUrl + "userLogout";
-    Response response = await dio.post(url);
+    Response response = await dio.post("userLogout");
     if (response.statusCode == 200) {
       return Logout.fromJson(response.data);
     } else {
@@ -37,9 +39,8 @@ class AuthRepository {
   }
 
   Future<AttractionModel> getAttractions() async {
-    final url = baseUrl + "getAttractions";
     try {
-      Response response = await dio.get(url);
+      Response response = await dio.get("getAttractions");
 
       if (response.statusCode == 200) {
         final AttractionModel attractionModel =
@@ -56,7 +57,7 @@ class AuthRepository {
 
   Future getData(String token) async {
     try {
-      var response = await http.get(Uri.parse(baseUrl), headers: {
+      var response = await http.get(Uri.parse(''), headers: {
         'Authorization': 'Bearer $token',
         'Accept': 'application/json'
       });

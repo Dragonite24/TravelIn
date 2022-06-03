@@ -28,8 +28,8 @@ class _AttractionsPageState extends State<AttractionsPage>
     try {
       await client.determinePosition().then(
             (value) => {
-              latitude = value.latitude,
-              longitude = value.longitude,
+              latitude = 57.622325,
+              longitude = 39.901884,
             },
           );
       return true;
@@ -39,13 +39,13 @@ class _AttractionsPageState extends State<AttractionsPage>
     }
   }
 
-  String getDistance(double latMark, double longMark) {
+  double getDistance(double latMark, double longMark) {
     return parseDistance(
         Geolocator.distanceBetween(latitude, longitude, latMark, longMark));
   }
 
-  String parseDistance(double data) {
-    return '${(data / 1000).toStringAsFixed(3)} км';
+  double parseDistance(double data) {
+    return double.parse((data / 1000).toStringAsFixed(3));
   }
 
   @override
@@ -64,10 +64,10 @@ class _AttractionsPageState extends State<AttractionsPage>
   Widget build(BuildContext context) {
     return BlocBuilder<AttractionsBloc, AttractionsState>(
       builder: (BuildContext context, AttractionsState state) {
+        print(state);
         if (state is AttractionsLoadedState) {
           String country =
               '${state.country[0].country}, ${state.country[0].locality}';
-          print(country);
           return Scaffold(
             appBar: AppBar(
               title: Text(country.toString()),
@@ -113,6 +113,8 @@ class _AttractionsPageState extends State<AttractionsPage>
   }
 
   Widget row(state, index) {
+    double distance = getDistance(
+        state.attractions[index].latitude, state.attractions[index].longitude);
     return GestureDetector(
       onTap: () => Navigator.push(
         context,
@@ -122,86 +124,94 @@ class _AttractionsPageState extends State<AttractionsPage>
           ),
         ),
       ),
-      child: SizedBox(
-        height: 90,
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            mainAxisSize: MainAxisSize.max,
-            children: [
-              SizedBox(
-                child: CircleAvatar(
-                  radius: 30,
-                  backgroundColor: CColors.light_grey,
-                  backgroundImage:
-                      NetworkImage(state.attractions[index].imageUrl),
-                ),
-              ),
-              Expanded(
-                child: Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 16.0,
-                    vertical: 8.0,
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: <Widget>[
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              state.attractions[index].name,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      Text(
-                        '${getDistance(state.attractions[index].latitude, state.attractions[index].longitude)}, до вас',
-                        style: TextStyle(
-                          color: CColors.grey,
-                          fontSize: 12.0,
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      if (state.attractions[index].rating != null)
-                        Text(
-                          'Рейтинг: ${state.attractions[index].rating.toStringAsPrecision(2)}',
-                          style: TextStyle(
-                            color: CColors.dark_grey,
-                            fontSize: 14.0,
-                          ),
-                        ),
-                    ],
-                  ),
-                ),
-              ),
-              InkWell(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => PreARPage(
-                        index: index,
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+            color: distance > 1 ? CColors.white.withOpacity(0.1) : null),
+        child: SizedBox(
+          height: 90,
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              mainAxisSize: MainAxisSize.max,
+              children: [
+                SizedBox(
+                  child: CircleAvatar(
+                    radius: 30,
+                    backgroundColor: CColors.black,
+                    child: CircleAvatar(
+                      radius: 29,
+                      backgroundColor: CColors.light_grey,
+                      backgroundImage: NetworkImage(
+                        state.attractions[index].imageUrl,
                       ),
                     ),
-                  );
-                },
-                child: SizedBox(
-                  width: 60,
-                  height: 60,
-                  child: Icon(
-                    Icons.person_pin_circle_outlined,
                   ),
                 ),
-              )
-            ],
+                Expanded(
+                  child: Container(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 16.0,
+                      vertical: 8.0,
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: <Widget>[
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                state.attractions[index].name,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        Text(
+                          '$distanceкм, до вас',
+                          style: TextStyle(
+                            color: CColors.grey,
+                            fontSize: 12.0,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        if (state.attractions[index].rating != null)
+                          Text(
+                            'Рейтинг: ${state.attractions[index].rating.toStringAsPrecision(2)}',
+                            style: TextStyle(
+                              fontSize: 14.0,
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                ),
+                InkWell(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => PreARPage(
+                          index: index,
+                        ),
+                      ),
+                    );
+                  },
+                  child: SizedBox(
+                    width: 60,
+                    height: 60,
+                    child: Icon(
+                      Icons.person_pin_circle_outlined,
+                    ),
+                  ),
+                )
+              ],
+            ),
           ),
         ),
       ),

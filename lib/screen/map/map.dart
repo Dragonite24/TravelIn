@@ -1,14 +1,11 @@
 import 'dart:async';
-import 'dart:ffi';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:travel_in/blocs/attractions/attractions_bloc.dart';
 import 'package:travel_in/blocs/attractions/attractions_state.dart';
-import 'package:travel_in/client.dart';
 import 'package:travel_in/components/indicator.dart';
 import 'package:travel_in/constants.dart';
-import 'package:travel_in/keys.dart';
 import 'package:travel_in/models/attractions_model.dart';
 import 'package:travel_in/screen/attractions/attraction_card.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';

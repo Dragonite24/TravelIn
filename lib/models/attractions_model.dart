@@ -19,16 +19,16 @@ class AttractionModel {
 }
 
 class Attraction {
-  Attraction({
-    this.name,
-    this.id,
-    this.questions,
-    this.imageUrl,
-    this.latitude,
-    this.longitude,
-    this.rating,
-    this.distance,
-  });
+  Attraction(
+      {this.name,
+      this.id,
+      this.questions,
+      this.imageUrl,
+      this.latitude,
+      this.longitude,
+      this.rating,
+      this.distance,
+      this.feedback});
 
   String name;
   int id;
@@ -38,18 +38,19 @@ class Attraction {
   double longitude;
   double rating;
   double distance;
+  List<String> feedback;
 
   factory Attraction.fromJson(Map<String, dynamic> json) => Attraction(
-        name: json["name"] ?? '',
-        id: json["id"],
-        questions: List<Question>.from(
-            json["questions"].map((x) => Question.fromJson(x))),
-        imageUrl: json["imageUrl"],
-        latitude: json["latitude"].toDouble(),
-        longitude: json["longitude"].toDouble(),
-        rating: json["rating"] == null ? null : json["rating"].toDouble(),
-        distance: json["distance"] == null ? null : json["distance"],
-      );
+      name: json["name"] ?? '',
+      id: json["id"],
+      questions: List<Question>.from(
+          json["questions"].map((x) => Question.fromJson(x))),
+      imageUrl: json["imageUrl"],
+      latitude: json["latitude"].toDouble(),
+      longitude: json["longitude"].toDouble(),
+      rating: json["rating"] == null ? null : json["rating"].toDouble(),
+      distance: json["distance"] == null ? null : json["distance"],
+      feedback: List<String>.from(json["feedback"].map((x) => x)));
 }
 
 class Question {

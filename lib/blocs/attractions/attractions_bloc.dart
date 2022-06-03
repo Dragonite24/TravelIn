@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:dio/dio.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:travel_in/blocs/attractions/attractions_event.dart';
@@ -43,8 +44,8 @@ class AttractionsBloc extends Bloc<AttractionsEvents, AttractionsState> {
           yield AttractionsLoadedState(
               attractions: data.attractions,
               country: country,
-              lat: lat,
-              lon: lon);
+              lat: 57.622325,
+              lon: 39.901884);
         } on SocketException {
           yield AttractionsErrorState(
             error: ('Нет интернета'),
@@ -59,10 +60,20 @@ class AttractionsBloc extends Bloc<AttractionsEvents, AttractionsState> {
           );
         } catch (e) {
           print(e.toString());
-          yield AttractionsErrorState(
-            error: ('Неизвестная ошибка ${e.toString()}'),
-          );
+          if (DioErrorType.connectTimeout == e.type ||
+              DioErrorType.receiveTimeout == e.type) {
+            yield AttractionsErrorState(
+              error: ('Нет интернета (timeout)'),
+            );
+          } else {
+            yield AttractionsErrorState(
+              error: ('Неизвестная ошибка ${e.toString()}'),
+            );
+          }
         }
+        break;
+      case AttractionsEvents.clearData:
+        super.close();
         break;
     }
   }

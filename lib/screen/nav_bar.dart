@@ -66,7 +66,7 @@ class NavbarState extends State<Navbar> {
               navButton(Icons.list_rounded, 'Список', 0),
               navButton(Icons.map_rounded, 'Карта', 1),
               navButton(Icons.person_search_rounded, 'Гид', 2),
-              navButton(Icons.settings, 'Профиль', 3),
+              navButton(Icons.person, 'Профиль', 3),
             ],
           )),
       body: PageView(

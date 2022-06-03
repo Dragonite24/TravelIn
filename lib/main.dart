@@ -17,7 +17,6 @@ void main() {
 final AuthRepository authRepository = AuthRepository();
 
 class MyApp extends StatelessWidget {
-
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
@@ -31,7 +30,8 @@ class MyApp extends StatelessWidget {
         BlocProvider(
           create: (context) => AttractionsBloc(
             api: AuthRepository(),
-          ),child: AuthPage(),
+          ),
+          child: AuthPage(),
         )
       ],
       child: BlocBuilder<ThemeChangeBloc, ThemeChangeState>(

@@ -10,6 +10,7 @@ class AttractionCard extends StatefulWidget {
   final Attraction attraction;
 
   AttractionCard({this.attraction});
+
   @override
   _AttractionCardState createState() => _AttractionCardState();
 }
@@ -19,6 +20,7 @@ class _AttractionCardState extends State<AttractionCard> {
 
   bool mapLoaded = false;
   BitmapDescriptor bitmapDescriptor;
+
   void loadMap() async {
     bitmapDescriptor = await BitmapDescriptor.fromAssetImage(
       ImageConfiguration(
@@ -52,7 +54,7 @@ class _AttractionCardState extends State<AttractionCard> {
                   padding: const EdgeInsets.all(16.0),
                   child: Text(
                     widget.attraction.name,
-                    style: TextStyle(color: CColors.dark_grey, fontSize: 20),
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
                   ),
                 ),
                 for (Question question in widget.attraction.questions) ...[
@@ -71,11 +73,14 @@ class _AttractionCardState extends State<AttractionCard> {
                       horizontal: 16,
                       vertical: 8,
                     ),
-                    child: Text(question.answer),
+                    child: Text(
+                      question.answer,
+                      style: TextStyle(fontStyle: FontStyle.italic),
+                    ),
                   ),
                 ],
                 Container(
-                  height: 500,
+                  height: 300,
                   child: mapLoaded
                       ? GoogleMap(
                           markers: {
@@ -103,7 +108,51 @@ class _AttractionCardState extends State<AttractionCard> {
                         )
                       : null,
                 ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "Отзывы: ",
+                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+                      ),
+                      for (String feedback in widget.attraction.feedback) ...[
+                        feedbackCard(feedback)
+                      ],
+                    ],
+                  ),
+                ),
               ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget feedbackCard(text) {
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: 16),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          CircleAvatar(
+            backgroundColor: CColors.light_grey,
+            backgroundImage: AssetImage('assets/user.png'),
+          ),
+          SizedBox(width: 10),
+          Expanded(
+            child: SizedBox(
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Text(text),
+              ),
             ),
           )
         ],

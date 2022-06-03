@@ -1,3 +1,4 @@
 enum AttractionsEvents{
-  fetchAttractions
+  fetchAttractions,
+  clearData
 }

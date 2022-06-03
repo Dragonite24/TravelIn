@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:travel_in/blocs/attractions/attractions_bloc.dart';
+import 'package:travel_in/blocs/attractions/attractions_event.dart';
 import 'package:travel_in/blocs/auth/auth_bloc.dart';
 import 'package:travel_in/blocs/auth/auth_event.dart';
 import 'package:travel_in/blocs/auth/auth_state.dart';
@@ -84,12 +86,13 @@ class _ProfilePageState extends State<ProfilePage> {
                             ),
                           ),
                           const Icon(
-                            Icons.arrow_forward_ios_rounded,
+                            Icons.settings,
                             size: 20,
                           ),
                         ],
                       ),
                     ),
+                    SizedBox(height: 20),
                     for (int i = 1; i < data.length; i++)
                       Panel(text: data[i], bloc: authBloc)
                   ],
@@ -116,6 +119,8 @@ class Panel extends StatelessWidget {
     return InkWell(
       onTap: () => {
         'Выход' == text ? bloc.add(LoggedOut()) : null,
+        BlocProvider.of<AttractionsBloc>(context)
+            .add(AttractionsEvents.clearData)
       },
       child: Container(
         height: 50,
